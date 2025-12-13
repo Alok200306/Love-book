@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You 💗</title>
+
+<style>
+body{
+  font-family:'Georgia',serif;
+  background:linear-gradient(180deg,#fff1f5,#fde2e8);
+  padding:20px;
+}
+.box{
+  max-width:520px;
+  margin:auto;
+  background:#fff;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 20px 60px rgba(255,105,135,.25);
+}
+h1{
+  text-align:center;
+  color:#c9184a;
+  font-size:2.2rem;
+}
+.shayari{
+  margin:18px 0;
+  padding:14px;
+  background:#fff7f9;
+  border-left:4px solid #ff4d6d;
+  border-radius:10px;
+  font-style:italic;
+  line-height:1.9;
+  color:#6b2f3a;
+}
+button{
+  background:#ff4d6d;
+  color:#fff;
+  border:none;
+  padding:10px 18px;
+  border-radius:20px;
+  cursor:pointer;
+}
+audio{width:100%;margin-top:10px}
+</style>
+</head>
+
+<body>
+
+<!-- LOCK -->
+<div class="box" id="lockBox">
+  <h1>🔐 For You</h1>
+  <input type="password" id="viewerPassInput" placeholder="Password"
+         style="width:100%;padding:10px;margin:10px 0;border-radius:10px;border:1px solid #f5b7c4">
+  <button onclick="unlockPage()">Open 💗</button>
+</div>
+
+<!-- CONTENT -->
+<div class="box" id="contentBox" style="display:none">
+  <h1>For You 💖</h1>
+
+  <!-- Creator Shayari -->
+  <div id="creatorShayari"></div>
+
+  <!-- Default Shayari -->
+  <div id="defaultShayari"></div>
+
+  <h3 style="margin-top:20px;color:#c9184a">🎧 Voice Message</h3>
+  <audio id="voicePlayer" controls></audio>
+</div>
+
+<script>
+const DEFAULT_SHAYARI = [
+"Main zyada bolta nahi,<br>par jab tum saamne hoti ho,<br>dil khud hi sab keh deta hai…",
+
+"Tumhari ek muskaan,<br>mere poore din ko roshan kar deti hai.",
+
+"Ajeeb si aadat ho gayi hai tumhari,<br>sochta hoon to sukoon milta hai.",
+
+"Mujhe ishq ka hunar nahi aata,<br>par tumse mohabbat poori imaandari se karta hoon.",
+
+"Agar zindagi ek kitaab hoti,<br>toh sabse khoobsurat panna tum hoti.",
+
+"Kuch rishte naam ke mohtaaj nahi hote,<br>mehsoos ho jaate hain… jaise tum."
+];
+
+function unlockPage(){
+  const savedPass = localStorage.getItem("viewerPassword");
+  const entered = document.getElementById("viewerPassInput").value;
+
+  if(!savedPass){
+    alert("Abhi creator ne page prepare nahi kiya ❌");
+    return;
+  }
+  if(entered !== savedPass){
+    alert("Wrong password ❌");
+    return;
+  }
+
+  document.getElementById("lockBox").style.display="none";
+  document.getElementById("contentBox").style.display="block";
+
+  const creatorText = localStorage.getItem("shayariText");
+  const creatorDiv = document.getElementById("creatorShayari");
+
+  if(creatorText && creatorText.trim() !== ""){
+    creatorDiv.innerHTML =
+      `<div class="shayari">${creatorText.replace(/\n/g,"<br>")}</div>`;
+  }
+
+  const defDiv = document.getElementById("defaultShayari");
+  DEFAULT_SHAYARI.forEach(s=>{
+    defDiv.innerHTML += `<div class="shayari">${s}</div>`;
+  });
+
+  const voiceURL = localStorage.getItem("voiceURL");
+  if(voiceURL){
+    document.getElementById("voicePlayer").src = voiceURL;
+  }
+}
+</script>
+
+</body>
+</html>

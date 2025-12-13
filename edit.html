@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Panel</title>
+<style>
+body{font-family:Arial;background:#fde2e8;padding:20px}
+.box{max-width:500px;margin:auto;background:#fff;padding:20px;border-radius:12px}
+input,textarea,button{width:100%;margin:8px 0;padding:10px}
+button{background:#ff4d6d;color:#fff;border:none;border-radius:8px}
+</style>
+</head>
+<body>
+
+<div class="box" id="loginBox">
+  <h2>🔒 Creator Login</h2>
+  <input type="password" id="creatorPassInput" placeholder="Creator Password">
+  <button onclick="creatorLogin()">Login</button>
+</div>
+
+<div class="box" id="panelBox" style="display:none">
+  <h2>✍️ Shayari Add</h2>
+  <textarea id="shayariInput" placeholder="Apni shayari likho"></textarea>
+
+  <h3>🎧 Upload Voice</h3>
+  <input type="file" accept="audio/*" onchange="saveVoice(event)">
+
+  <h3>🔐 Viewer Password</h3>
+  <input type="text" id="viewerPassInput" placeholder="Viewer password set karo">
+
+  <button onclick="saveData()">Save</button>
+
+  <p><b>Viewer Page:</b> <code>view.html</code></p>
+</div>
+
+<script>
+const CREATOR_PASSWORD = "admin123";
+
+function creatorLogin(){
+  const pass = document.getElementById("creatorPassInput").value;
+  if(pass !== CREATOR_PASSWORD){
+    alert("Wrong creator password ❌");
+    return;
+  }
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("panelBox").style.display="block";
+}
+
+function saveVoice(e){
+  const file = e.target.files[0];
+  if(file){
+    const url = URL.createObjectURL(file);
+    localStorage.setItem("voiceURL", url);
+  }
+}
+
+function saveData(){
+  localStorage.setItem("shayariText", document.getElementById("shayariInput").value);
+  localStorage.setItem("viewerPassword", document.getElementById("viewerPassInput").value);
+  alert("Saved successfully ✅");
+}
+</script>
+
+</body>
+</html>
