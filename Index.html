@@ -3,63 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Creator Panel</title>
+<title>Creator Panel 💗</title>
+
 <style>
-body{font-family:Arial;background:#fde2e8;padding:20px}
-.box{max-width:500px;margin:auto;background:#fff;padding:20px;border-radius:12px}
-input,textarea,button{width:100%;margin:8px 0;padding:10px}
-button{background:#ff4d6d;color:#fff;border:none;border-radius:8px}
+body{
+  font-family:Georgia,serif;
+  background:linear-gradient(180deg,#fff1f5,#fde2e8);
+  padding:20px;
+}
+.box{
+  max-width:520px;
+  margin:auto;
+  background:#fff;
+  padding:26px;
+  border-radius:20px;
+  box-shadow:0 20px 60px rgba(255,105,135,.25);
+}
+h1{text-align:center;color:#c9184a;font-weight:normal}
+input,textarea{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:12px;
+  border:1px solid #f5b7c4;
+  font-family:Georgia,serif;
+}
+button{
+  background:#ff4d6d;
+  color:#fff;
+  border:none;
+  padding:10px 22px;
+  border-radius:25px;
+  cursor:pointer;
+}
+.entry{
+  background:#fff9fb;
+  border-left:3px solid #ff758f;
+  padding:12px;
+  border-radius:12px;
+  margin-top:10px;
+}
 </style>
 </head>
+
 <body>
 
-<div class="box" id="loginBox">
-  <h2>🔒 Creator Login</h2>
-  <input type="password" id="creatorPassInput" placeholder="Creator Password">
-  <button onclick="creatorLogin()">Login</button>
+<div class="box">
+<h1>💗 Creator Panel</h1>
+
+<input id="pageName" placeholder="Name (eg: Shreya)">
+<input id="password" placeholder="Password">
+
+<hr>
+
+<input id="heading" placeholder="Heading">
+<textarea id="shayari" placeholder="Shayari"></textarea>
+<button onclick="addEntry()">➕ Add</button>
+
+<div id="list"></div>
+
+<hr>
+
+<label>🎧 Voice Message</label>
+<input type="file" id="voice" accept="audio/*">
+
+<hr>
+
+<button onclick="saveAll()">💾 Save</button>
 </div>
 
-<div class="box" id="panelBox" style="display:none">
-  <h2>✍️ Shayari Add</h2>
-  <textarea id="shayariInput" placeholder="Apni shayari likho"></textarea>
+<script type="module">
+import { savePage, uploadVoice } from "./firebase.js";
 
-  <h3>🎧 Upload Voice</h3>
-  <input type="file" accept="audio/*" onchange="saveVoice(event)">
+const pageId = new URLSearchParams(location.search).get("id");
+if(!pageId){
+  alert("Use creator.html?id=uniqueName");
+}
 
-  <h3>🔐 Viewer Password</h3>
-  <input type="text" id="viewerPassInput" placeholder="Viewer password set karo">
+let shayariData = [];
 
-  <button onclick="saveData()">Save</button>
+window.addEntry = function(){
+  shayariData.push({
+    heading: heading.value,
+    text: shayari.value
+  });
+  list.innerHTML += `
+    <div class="entry">
+      <b>${heading.value}</b><br>${shayari.value}
+    </div>`;
+  heading.value="";
+  shayari.value="";
+};
 
-  <p><b>Viewer Page:</b> <code>view.html</code></p>
-</div>
-
-<script>
-const CREATOR_PASSWORD = "admin123";
-
-function creatorLogin(){
-  const pass = document.getElementById("creatorPassInput").value;
-  if(pass !== CREATOR_PASSWORD){
-    alert("Wrong creator password ❌");
-    return;
+window.saveAll = async function(){
+  let voiceURL = "";
+  if(voice.files[0]){
+    voiceURL = await uploadVoice(pageId, voice.files[0]);
   }
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("panelBox").style.display="block";
-}
 
-function saveVoice(e){
-  const file = e.target.files[0];
-  if(file){
-    const url = URL.createObjectURL(file);
-    localStorage.setItem("voiceURL", url);
-  }
-}
+  await savePage(pageId,{
+    name: pageName.value,
+    password: password.value,
+    shayariData,
+    voiceURL
+  });
 
-function saveData(){
-  localStorage.setItem("shayariText", document.getElementById("shayariInput").value);
-  localStorage.setItem("viewerPassword", document.getElementById("viewerPassInput").value);
-  alert("Saved successfully ✅");
-}
+  alert("Saved successfully 💗");
+};
 </script>
 
 </body>
