@@ -7,7 +7,7 @@
 
 <style>
 body{
-  font-family:'Georgia',serif;
+  font-family:Georgia,serif;
   background:linear-gradient(180deg,#fff1f5,#fde2e8);
   padding:20px;
 }
@@ -15,32 +15,31 @@ body{
   max-width:520px;
   margin:auto;
   background:#fff;
-  padding:25px;
-  border-radius:18px;
+  padding:26px;
+  border-radius:20px;
   box-shadow:0 20px 60px rgba(255,105,135,.25);
 }
-h1{
+h1{text-align:center;color:#c9184a;font-weight:normal}
+.section-title{
   text-align:center;
-  color:#c9184a;
-  font-size:2.2rem;
+  color:#8a3b4a;
+  font-style:italic;
+  margin-top:30px;
 }
 .shayari{
-  margin:18px 0;
-  padding:14px;
-  background:#fff7f9;
-  border-left:4px solid #ff4d6d;
-  border-radius:10px;
-  font-style:italic;
-  line-height:1.9;
-  color:#6b2f3a;
+  background:#fff9fb;
+  border-left:3px solid #ff758f;
+  padding:16px;
+  border-radius:14px;
+  margin:14px 0;
+  line-height:2;
 }
 button{
   background:#ff4d6d;
   color:#fff;
   border:none;
-  padding:10px 18px;
-  border-radius:20px;
-  cursor:pointer;
+  padding:10px 22px;
+  border-radius:30px;
 }
 audio{width:100%;margin-top:10px}
 </style>
@@ -48,77 +47,65 @@ audio{width:100%;margin-top:10px}
 
 <body>
 
-<!-- LOCK -->
 <div class="box" id="lockBox">
-  <h1>🔐 For You</h1>
-  <input type="password" id="viewerPassInput" placeholder="Password"
-         style="width:100%;padding:10px;margin:10px 0;border-radius:10px;border:1px solid #f5b7c4">
-  <button onclick="unlockPage()">Open 💗</button>
+  <h1 id="lockTitle">For You 💗</h1>
+  <input id="viewerPassInput" placeholder="Password"
+    style="width:100%;padding:10px;border-radius:12px;border:1px solid #f5b7c4">
+  <br><br>
+  <button onclick="unlockPage()">Open 💖</button>
 </div>
 
-<!-- CONTENT -->
 <div class="box" id="contentBox" style="display:none">
-  <h1>For You 💖</h1>
+  <h1 id="mainTitle">For You 💗</h1>
+  <div id="content"></div>
 
-  <!-- Creator Shayari -->
-  <div id="creatorShayari"></div>
-
-  <!-- Default Shayari -->
-  <div id="defaultShayari"></div>
-
-  <h3 style="margin-top:20px;color:#c9184a">🎧 Voice Message</h3>
+  <p class="section-title">🎧 Kuch baatein sunne me achhi hoti hain</p>
   <audio id="voicePlayer" controls></audio>
 </div>
 
-<script>
-const DEFAULT_SHAYARI = [
-"Main zyada bolta nahi,<br>par jab tum saamne hoti ho,<br>dil khud hi sab keh deta hai…",
+<script type="module">
+import { loadPage } from "./firebase.js";
 
-"Tumhari ek muskaan,<br>mere poore din ko roshan kar deti hai.",
+function getEmojiByName(name){
+  if(!name) return "💗";
+  const last = name.toLowerCase().slice(-1);
+  if(["a","i","e","y"].includes(last)) return "🌸";
+  if(["r","s","n","l"].includes(last)) return "🤍";
+  if(["h","k","m"].includes(last)) return "💫";
+  if(["o","u"].includes(last)) return "💖";
+  return "💗";
+}
 
-"Ajeeb si aadat ho gayi hai tumhari,<br>sochta hoon to sukoon milta hai.",
+window.unlockPage = async function(){
+  const pageId = new URLSearchParams(location.search).get("id");
+  if(!pageId) return alert("Invalid link");
 
-"Mujhe ishq ka hunar nahi aata,<br>par tumse mohabbat poori imaandari se karta hoon.",
+  const page = await loadPage(pageId);
+  if(!page) return alert("Page not found");
 
-"Agar zindagi ek kitaab hoti,<br>toh sabse khoobsurat panna tum hoti.",
-
-"Kuch rishte naam ke mohtaaj nahi hote,<br>mehsoos ho jaate hain… jaise tum."
-];
-
-function unlockPage(){
-  const savedPass = localStorage.getItem("viewerPassword");
-  const entered = document.getElementById("viewerPassInput").value;
-
-  if(!savedPass){
-    alert("Abhi creator ne page prepare nahi kiya ❌");
-    return;
-  }
-  if(entered !== savedPass){
-    alert("Wrong password ❌");
+  if(viewerPassInput.value !== page.password){
+    alert("Wrong password");
     return;
   }
 
-  document.getElementById("lockBox").style.display="none";
-  document.getElementById("contentBox").style.display="block";
+  const emoji = getEmojiByName(page.name);
+  lockTitle.innerText = "For " + page.name + " " + emoji;
+  mainTitle.innerText = "For " + page.name + " " + emoji;
 
-  const creatorText = localStorage.getItem("shayariText");
-  const creatorDiv = document.getElementById("creatorShayari");
+  lockBox.style.display="none";
+  contentBox.style.display="block";
 
-  if(creatorText && creatorText.trim() !== ""){
-    creatorDiv.innerHTML =
-      `<div class="shayari">${creatorText.replace(/\n/g,"<br>")}</div>`;
-  }
-
-  const defDiv = document.getElementById("defaultShayari");
-  DEFAULT_SHAYARI.forEach(s=>{
-    defDiv.innerHTML += `<div class="shayari">${s}</div>`;
+  content.innerHTML="";
+  page.shayariData.forEach(s=>{
+    content.innerHTML += `
+      <h3 class="section-title">${s.heading}</h3>
+      <div class="shayari">${s.text.replace(/\n/g,"<br>")}</div>`;
   });
 
-  const voiceURL = localStorage.getItem("voiceURL");
-  if(voiceURL){
-    document.getElementById("voicePlayer").src = voiceURL;
+  if(page.voiceURL){
+    voicePlayer.src = page.voiceURL;
   }
-}
+};
 </script>
 
 </body>
